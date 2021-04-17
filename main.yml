@@ -1,0 +1,2 @@
+git branch -l
+git pull branch -t origin newfzf
