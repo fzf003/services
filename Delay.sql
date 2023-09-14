@@ -30,7 +30,7 @@ END CATCH;
 EXEC  sp_releaseapplock @Resource = @MLock
 
 
-----删除
+----处理延迟时间信息，并备份到备份表
 
 with message as (
   select top(1) *
@@ -42,6 +42,9 @@ output
 	deleted.Sex,
 	deleted.DueAfter
 	INTO HD..MUser;
+
+---查询下一条到期时间
+SELECT DueAfter FROM HD..Users WITH (READPAST) ORDER BY DueAfter 
 	
 
 
