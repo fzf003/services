@@ -30,5 +30,19 @@ END CATCH;
 EXEC  sp_releaseapplock @Resource = @MLock
 
 
+----删除
+
+with message as (
+  select top(1) *
+  from HD..Users with (updlock, readpast, rowlock)
+  order by UserId)
+delete from message
+output
+  deleted.UserName,
+	deleted.Sex,
+	deleted.DueAfter
+	INTO HD..MUser;
+	
+
 
 
