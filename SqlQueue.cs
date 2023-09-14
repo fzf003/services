@@ -38,7 +38,14 @@ public class SqlQueue
         return services.BuildServiceProvider();
     }
 
+    /*
+       while (true)
+    {
+        await SqlQueue.CreateQueue(() => (SqlConnection)factory.CreateConnection("HD"));
+        Console.ReadKey();
+    }
 
+    */
     public static async Task CreateQueue(Func<SqlConnection> sqlConnectionfuc, string sql = "SELECT * FROM HD..Users where UserId>@UserId")
     {
         var sqlConnection = sqlConnectionfuc();
