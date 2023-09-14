@@ -1,3 +1,4 @@
+--计算时间
 DECLARE @DueAfterMilliseconds INT=0;
 DECLARE @DueAfterSeconds INT=0;
 DECLARE @DueAfterMinutes INT=0;
