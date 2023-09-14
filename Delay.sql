@@ -32,16 +32,16 @@ EXEC  sp_releaseapplock @Resource = @MLock
 
 ----处理延迟时间信息，并备份到备份表
 
-with message as (
-  select top(1) *
-  from HD..Users with (updlock, readpast, rowlock)
-  order by UserId)
-delete from message
-output
+WITH MESSAGE AS (
+  SELECT TOP(1) *
+  FROM HD..Users WITH (UPDLOCK, readpast, rowlock)
+  ORDER BY UserId)
+DELETE FROM MESSAGE
+OUTPUT
   deleted.UserName,
-	deleted.Sex,
-	deleted.DueAfter
-	INTO HD..MUser;
+  deleted.Sex,
+  deleted.DueAfter
+  INTO HD..MUser;
 
 ---查询下一条到期时间
 SELECT DueAfter FROM HD..Users WITH (READPAST) ORDER BY DueAfter 
