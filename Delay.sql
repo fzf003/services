@@ -14,5 +14,21 @@ SET @DueAfter = DATEADD(d, @DueAfterDays, @DueAfter);
 PRINT CONVERT(nvarchar(50), @DueAfter, 120)
 
 
+---Sql 锁
+DECLARE @MLock NVARCHAR(50)='my_lock';
+
+EXEC sp_getapplock @Resource = @MLock, @LockMode = 'Exclusive'
+
+BEGIN TRY
+SELECT * FROM HD..Users
+END TRY
+BEGIN CATCH
+   EXEC  sp_releaseapplock @Resource = @MLock;
+    THROW;
+END CATCH;
+
+EXEC  sp_releaseapplock @Resource = @MLock
+
+
 
 
