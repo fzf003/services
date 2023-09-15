@@ -45,6 +45,11 @@ OUTPUT
 
 ---查询下一条到期时间
 SELECT DueAfter FROM HD..Users WITH (READPAST) ORDER BY DueAfter 
+
+
+ ---查找包含视图的存储过程和仕途
+select distinct OBJECT_NAME(Id) from syscomments  where id in (select Id from sysobjects where type in ('V','P','F'))
+ and text like '%V_PM_ContranctAmount%'
 	
 
 
