@@ -1,9 +1,12 @@
 
 
 using System.Data;
+using System.Runtime.CompilerServices;
 using System.Transactions;
+using Dapper;
 using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.DependencyInjection;
+using Org.BouncyCastle.Crmf;
 using SCZS.Persistence.Dapper;
 
 public class SqlQueue
@@ -69,19 +72,10 @@ public class SqlQueue
 SELECT isnull(cast(max([RowVersion]) - min([RowVersion]) + 1 AS int), 0) Id FROM {0} WITH (nolock)";
 
     public static readonly string QueueName = "InputQueue";
+
+
+    public static readonly string SendSqlText = "INSERT INTO {0} (UserName,Sex,DueAfter) values(@UserName,@Sex,@DueAfter)";
     #endregion
-
-    static void AddParameter(SqlCommand command, string name, SqlDbType type, object value)
-    {
-        command.Parameters.Add(name, type).Value = value ?? DBNull.Value;
-    }
-
-    static void AddParameter(SqlCommand command, string name, SqlDbType type, object value, int size)
-    {
-        command.Parameters.Add(name, type, size).Value = value ?? DBNull.Value;
-    }
-
-
 
     static IServiceProvider GetServiceProvider(Action<ServiceCollection> action = null)
     {
@@ -102,13 +96,37 @@ SELECT isnull(cast(max([RowVersion]) - min([RowVersion]) + 1 AS int), 0) Id FROM
     }
 
 
+    public static async Task<int> SendAsync(SqlConnection sqlConnection, SqlTransaction transaction, UserInfo userInfo, CancellationToken cancellationToken = default)
+    {
+        int Affected = 0;
+
+        {
+            var sendCommand = string.Format(SendSqlText, "HD..Users");
+
+            using (var SqlCommand = new SqlCommand(sendCommand, sqlConnection, transaction))
+            {
+                SqlCommand.AddParameter(nameof(userInfo.UserName), SqlDbType.NVarChar, userInfo.UserName);
+                SqlCommand.AddParameter(nameof(userInfo.Sex), SqlDbType.NVarChar, userInfo.Sex);
+                SqlCommand.AddParameter(nameof(userInfo.DueAfter), SqlDbType.DateTime, userInfo.DueAfter);
+
+                Affected = await SqlCommand.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
+            }
+            //await transaction.CommitAsync(cancellationToken).ConfigureAwait(false); ;
+        }
+
+        return Affected;
+    }
+
+
+
+
 
     public static async Task<int> TryPeek(SqlConnection sqlConnection, int? timeoutInSeconds = null, CancellationToken cancellationToken = default)
     {
         int numberOfMessages = 0;
         using (var transaction = sqlConnection.BeginTransaction())
         {
-            numberOfMessages = await TryPeekCore(sqlConnection,transaction,timeoutInSeconds, cancellationToken).ConfigureAwait(false);
+            numberOfMessages = await TryPeek(sqlConnection, transaction, timeoutInSeconds, cancellationToken).ConfigureAwait(false);
 
             await transaction.CommitAsync(cancellationToken).ConfigureAwait(false); ;
         }
@@ -116,7 +134,7 @@ SELECT isnull(cast(max([RowVersion]) - min([RowVersion]) + 1 AS int), 0) Id FROM
         return numberOfMessages;
     }
 
-    static async Task<int> TryPeekCore(SqlConnection connection, SqlTransaction transaction, int? timeoutInSeconds = null, CancellationToken cancellationToken = default)
+    public static async Task<int> TryPeek(SqlConnection connection, SqlTransaction transaction, int? timeoutInSeconds = null, CancellationToken cancellationToken = default)
     {
         var peekCommand = string.Format(PeekText, QueueName);
         using (var command = new SqlCommand(peekCommand, connection, transaction)
@@ -140,7 +158,6 @@ SELECT isnull(cast(max([RowVersion]) - min([RowVersion]) + 1 AS int), 0) Id FROM
             using (var transaction = sqlConnection.BeginTransaction())
             {
 
-
                 using (var command = new SqlCommand(sql, sqlConnection, transaction)
                 {
                     CommandType = CommandType.Text
@@ -160,14 +177,44 @@ SELECT isnull(cast(max([RowVersion]) - min([RowVersion]) + 1 AS int), 0) Id FROM
         }
     }
 
-
-    public static async Task ReaderCreateQueue(Func<SqlConnection> sqlConnectionfuc, string sql = "SELECT * FROM HD..Users where UserId>@UserId")
+    public static async IAsyncEnumerable<UserInfo> ReaderStreamAsync(SqlConnection sqlConnection, string sql = "SELECT * FROM HD..Users where UserId>@UserId", int Id = 0, CancellationToken cancellationToken = default)
     {
-        var sqlConnection = sqlConnectionfuc();
-        if (sqlConnection.State == ConnectionState.Closed)
+        using (var transaction = sqlConnection.BeginTransaction())
         {
-            await sqlConnection.OpenAsync().ConfigureAwait(false);
+            await foreach (var message in ReaderStreamAsync(sqlConnection, transaction, sql, Id, cancellationToken).ConfigureAwait(false))
+            {
+               yield return message;
+            }
         }
+    }
+
+
+    public static async IAsyncEnumerable<UserInfo> ReaderStreamAsync(SqlConnection sqlConnection, SqlTransaction transaction, string sql = "SELECT * FROM HD..Users where UserId>@UserId", int Id = 0, CancellationToken cancellationToken = default)
+    {
+
+        using (var SqlCommand = new SqlCommand(sql, sqlConnection, transaction))
+        {
+            SqlCommand.AddParameter("UserId", SqlDbType.Int, Id);
+
+            using (var dataReader = await SqlCommand.ExecuteReaderAsync(System.Data.CommandBehavior.SequentialAccess | System.Data.CommandBehavior.Default).ConfigureAwait(false))
+            {
+                while (await dataReader.ReadAsync(cancellationToken).ConfigureAwait(false))
+                {
+                    var message = await UserInfo.ReadRow(dataReader, cancellationToken: CancellationToken.None).ConfigureAwait(false);
+                    yield return message;
+                }
+            }
+        }
+    }
+
+
+    public static async Task ReaderCreateQueue(SqlConnection sqlConnection, string sql = "SELECT * FROM HD..Users where UserId>@UserId", int Id = 0)
+    {
+        // var sqlConnection = sqlConnection;
+        /*  if (sqlConnection.State == ConnectionState.Closed)
+          {
+              await sqlConnection.OpenAsync().ConfigureAwait(false);
+          }*/
         using (var scope = new TransactionScope(TransactionScopeOption.Suppress, TransactionScopeAsyncFlowOption.Enabled))
         using (var Transaction = sqlConnection.BeginTransaction())
         using (var SqlCommand = new SqlCommand(sql, sqlConnection, transaction: Transaction))//sqlConnection.CreateCommand()
@@ -175,8 +222,8 @@ SELECT isnull(cast(max([RowVersion]) - min([RowVersion]) + 1 AS int), 0) Id FROM
             //SqlCommand.CommandText = sql;
             //SqlCommand.Transaction = (SqlTransaction)Transaction;
             #region add Parameters
-            //AddParameter(SqlCommand, "UserId", SqlDbType.Int, 0);
-            SqlCommand.Parameters.AddWithValue("UserId", 0);
+            SqlCommand.AddParameter("UserId", SqlDbType.Int, Id);
+            //SqlCommand.Parameters.AddWithValue("UserId", 0);
             #endregion
 
             using (var dataReader = await SqlCommand.ExecuteReaderAsync(System.Data.CommandBehavior.SequentialAccess | CommandBehavior.CloseConnection).ConfigureAwait(false))
@@ -184,28 +231,114 @@ SELECT isnull(cast(max([RowVersion]) - min([RowVersion]) + 1 AS int), 0) Id FROM
                 int headersIndex = 1;
                 while (await dataReader.ReadAsync().ConfigureAwait(false))
                 {
-
-                    var message = await GetMessageAsync(dataReader, headersIndex, CancellationToken.None);
+                    var message = await UserInfo.ReadRow(dataReader, cancellationToken: CancellationToken.None).ConfigureAwait(false);
+                    // var message = await dataReader.GetMessageAsync(headersIndex, CancellationToken.None);
                     Console.WriteLine(message);
                 }
             }
 
             scope.Complete();
         }
+
     }
 
 
-    public static async Task<string> GetMessageAsync(SqlDataReader dataReader, int headersIndex, CancellationToken cancellationToken)
+
+
+
+
+
+
+}
+
+
+
+public record UserInfo
+{
+    public static async Task<UserInfo> ReadRow(SqlDataReader dataReader, CancellationToken cancellationToken = default)
+    {
+        return new UserInfo
+        {
+            UserId = await dataReader.GetMessageIdAsync(0, cancellationToken).ConfigureAwait(false),
+            UserName = await dataReader.GetStringAsync(1, cancellationToken).ConfigureAwait(false),
+            Sex = await dataReader.GetStringAsync(2, cancellationToken).ConfigureAwait(false),
+            DueAfter = await dataReader.GetDataTimeAsync(3, cancellationToken).ConfigureAwait(false)
+        };
+
+    }
+
+    public static UserInfo CreateUser(string UserName, string Sex, DateTime DueAfter)
+    {
+        return new UserInfo
+        {
+            UserName = UserName,
+            Sex = Sex,
+            DueAfter = DueAfter
+        };
+    }
+
+    public int UserId { get; set; }
+    public string UserName { get; set; }
+
+    public string Sex { get; set; }
+
+    public DateTime DueAfter { get; set; }
+}
+
+
+public static class SqlQueueExtensions
+{
+
+    public static void AddParameter(this SqlCommand command, string name, SqlDbType type, object value)
+    {
+        command.Parameters.Add(name, type).Value = value ?? DBNull.Value;
+    }
+
+    public static void AddParameter(this SqlCommand command, string name, SqlDbType type, object value, int size)
+    {
+        command.Parameters.Add(name, type, size).Value = value ?? DBNull.Value;
+    }
+
+    public static async Task<int> GetMessageIdAsync(this SqlDataReader dataReader, int headersIndex, CancellationToken cancellationToken = default)
     {
         if (await dataReader.IsDBNullAsync(headersIndex, cancellationToken).ConfigureAwait(false))
         {
-            return null;
+            return default;
         }
-
-        using (var textReader = dataReader.GetTextReader(headersIndex))
-        {
-            return await textReader.ReadToEndAsync().ConfigureAwait(false);
-        }
+        return await dataReader.GetFieldValueAsync<int>(headersIndex, cancellationToken).ConfigureAwait(false);
     }
 
+
+    public static async Task<string> GetStringAsync(this SqlDataReader dataReader, int headersIndex, CancellationToken cancellationToken = default)
+    {
+        if (await dataReader.IsDBNullAsync(headersIndex, cancellationToken).ConfigureAwait(false))
+        {
+            return default;
+        }
+        return await dataReader.GetFieldValueAsync<string>(headersIndex, cancellationToken).ConfigureAwait(false);
+    }
+
+    public static async Task<DateTime> GetDataTimeAsync(this SqlDataReader dataReader, int headersIndex, CancellationToken cancellationToken = default)
+    {
+        if (await dataReader.IsDBNullAsync(headersIndex, cancellationToken).ConfigureAwait(false))
+        {
+            return default;
+        }
+
+        return await dataReader.GetFieldValueAsync<DateTime>(headersIndex, cancellationToken).ConfigureAwait(false);
+    }
+
+
+    public static async Task<string> GetMessageAsync(this SqlDataReader dataReader, int messageIndex, CancellationToken cancellationToken = default)
+    {
+        if (await dataReader.IsDBNullAsync(messageIndex, cancellationToken).ConfigureAwait(false))
+        {
+            return default;
+        }
+
+        using (var textReader = dataReader.GetTextReader(messageIndex))
+        {
+            return await textReader.ReadToEndAsync(cancellationToken).ConfigureAwait(false);
+        }
+    }
 }
