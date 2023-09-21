@@ -127,6 +127,18 @@ SELECT isnull(cast(max([RowVersion]) - min([RowVersion]) + 1 AS int), 0) Id FROM
     }
 
 
+
+    public static async Task<int> SendAsync(SqlConnection sqlConnection, UserInfo userInfo, CancellationToken cancellationToken = default)
+    {
+        int Affected = 0;
+        using (var transaction = sqlConnection.BeginTransaction())
+        {
+            Affected = await SendAsync(sqlConnection, transaction, userInfo, cancellationToken);
+            await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
+        }
+        return Affected;
+    }
+
     public static async Task<int> SendAsync(SqlConnection sqlConnection, SqlTransaction transaction, UserInfo userInfo, CancellationToken cancellationToken = default)
     {
         int Affected = 0;
