@@ -8,7 +8,38 @@ using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.DependencyInjection;
 using Org.BouncyCastle.Crmf;
 using SCZS.Persistence.Dapper;
+/**
+    await factory.ExecuteTranAsync("HD", async (sqlConnection, transaction) =>
+    {
+        var currtransaction = (SqlTransaction)transaction;
+        
+        var connection = (SqlConnection)sqlConnection;
 
+        var count= await SqlQueue.TryPeek(connection,currtransaction).ConfigureAwait(false);
+
+        Console.WriteLine(count);
+
+        Console.WriteLine(sqlConnection.State);
+
+        await foreach (var item in SqlQueue.ReaderStreamAsync(sqlConnection: connection, transaction: currtransaction).WithCancellation(CancellationToken.None))
+        {
+            Console.WriteLine(item);
+        }
+
+        Console.WriteLine(sqlConnection.State);
+
+        await SqlQueue.SendAsync(connection, currtransaction, UserInfo.CreateUser($"fzf-{index}", "男", DateTime.Now)).ConfigureAwait(false);
+
+        Console.WriteLine(sqlConnection.State);
+
+        Console.WriteLine("=============================================");
+
+        Console.WriteLine(sqlConnection.State);
+        
+        transaction.Commit();
+ 
+    });
+**/
 public class SqlQueue
 {
 
