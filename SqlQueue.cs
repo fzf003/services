@@ -106,6 +106,27 @@ SELECT isnull(cast(max([RowVersion]) - min([RowVersion]) + 1 AS int), 0) Id FROM
 
 
     public static readonly string SendSqlText = "INSERT INTO {0} (UserName,Sex,DueAfter) values(@UserName,@Sex,@DueAfter)";
+
+        public static readonly string PurgeText = "DELETE FROM {0}";
+
+
+    private const string GetNextQuery =
+           @"
+     DECLARE @Ids TABLE (Id int)
+                
+        UPDATE TOP({0}) {1} SET
+             DueAfter = getdate()
+        OUTPUT Inserted.UserId INTO @Ids
+        SELECT 
+            UserId,
+            UserName,
+            Sex, 
+            DueAfter
+        FROM {1}
+        WHERE UserId IN (SELECT Id FROM @Ids)";
+
+
+    
     #endregion
 
     static IServiceProvider GetServiceProvider(Action<ServiceCollection> action = null)
@@ -158,6 +179,42 @@ SELECT isnull(cast(max([RowVersion]) - min([RowVersion]) + 1 AS int), 0) Id FROM
         }
 
         return Affected;
+    }
+
+
+    public static async Task<List<UserInfo>> GetNextAsync(SqlConnection sqlConnection, string TableName,  int batchCount = 10, CancellationToken cancellationToken = default)
+    {
+        List<UserInfo> store=new();
+
+        var NextQuerySql = string.Format(GetNextQuery, batchCount, TableName);
+
+        using (var SqlCommand = new SqlCommand(NextQuerySql, sqlConnection))
+        {
+            using var dataReader = await SqlCommand.ExecuteReaderAsync(System.Data.CommandBehavior.SequentialAccess | System.Data.CommandBehavior.Default, cancellationToken).ConfigureAwait(false);
+            while (await dataReader.ReadAsync(cancellationToken).ConfigureAwait(false))
+            {
+                var message = await UserInfo.ReadRow(dataReader, cancellationToken: CancellationToken.None).ConfigureAwait(false);
+                store.Add(message);
+            }
+        }
+
+        return store;
+    }
+
+
+    public static async Task PurgeAsync(SqlConnection sqlConnection, string TableName, CancellationToken cancellationToken = default)
+    {
+        using var transaction = sqlConnection.BeginTransaction();
+        await PurgeAsync(sqlConnection, transaction, TableName, cancellationToken).ConfigureAwait(false);
+        await transaction.CommitAsync(cancellationToken).ConfigureAwait(false);
+    }
+
+
+    public static async Task PurgeAsync(SqlConnection sqlConnection, SqlTransaction transaction, string TableName, CancellationToken cancellationToken = default)
+    {
+        var Purgesql = string.Format(PurgeText, TableName);
+        using var SqlCommand = new SqlCommand(Purgesql, sqlConnection, transaction);
+        await SqlCommand.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
     }
 
 
