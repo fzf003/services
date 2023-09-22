@@ -6,7 +6,12 @@ public interface IPollingQueue
 {
     Task<List<UserInfo>> DequeueAsync(CancellationToken cancellationToken);
 }
-
+/**
+Observable.Timer(TimeSpan.Zero,TimeSpan.FromMilliseconds(1000))
+          .Select(p=>Observable.FromAsync(async ()=>await PollingQueue.DequeueAsync(CancellationToken.None).ConfigureAwait(false)))
+          .Switch().SelectMany(p=>p)
+          .Subscribe(Console.WriteLine);
+**/
 public class PollingQueue : IPollingQueue
 {
     readonly Func<SqlConnection> _sqlConnection;
