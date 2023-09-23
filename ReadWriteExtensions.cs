@@ -6,11 +6,28 @@ using System.Reactive.Linq;
 using System.Text;
 using System.Threading.Channels;
 
+/*
+var Observable = AsyncObservable.FromAsync(async () => await Task.FromResult(Guid.NewGuid().ToString()));
+await Polling.Poll(Observable).SubscribeAsync(Console.WriteLine, err => Console.WriteLine(err));
+*/
+
+ public static partial class Polling
+    {
+        public static IAsyncObservable<Unit> DefaultPoller = AsyncObservable
+            .Timer(TimeSpan.FromMilliseconds(100))
+            .Select(_ => Unit.Default);
+
+        internal static IAsyncObservable<T> Poll<T>(this IAsyncObservable<T> query, IAsyncObservable<Unit> poller) => poller
+            .SelectMany(_ => query)
+            .Repeat();
+
+        internal static IAsyncObservable<T> Poll<T>(this IAsyncObservable<T> query) => query.Poll(DefaultPoller);
+    }
+
+
 public static class ReadWriteExtensions
 {
-
-
- 
+  
     public static Task WithCancellation(this Task task, CancellationToken cancellationToken)
     {
         if (task.IsCompleted || !cancellationToken.CanBeCanceled)
