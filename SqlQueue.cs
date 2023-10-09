@@ -182,6 +182,38 @@ SELECT isnull(cast(max([RowVersion]) - min([RowVersion]) + 1 AS int), 0) Id FROM
     }
 
 
+    public static async Task ConsumeAsync(SqlConnection sqlConnection, int batchsize, Func<UserInfo, SqlConnection, Task> func, CancellationToken cancellationToken = default)
+    {
+        var NextQuerySql = string.Format("SELECT top ({0}) * FROM HD..Users WHERE State in(0)", batchsize);
+
+        using (var SqlCommand = new SqlCommand(NextQuerySql, sqlConnection))
+        {
+            using var dataReader = await SqlCommand.ExecuteReaderAsync(System.Data.CommandBehavior.Default | CommandBehavior.SequentialAccess, cancellationToken).ConfigureAwait(false);
+
+            while (await dataReader.ReadAsync(cancellationToken).ConfigureAwait(false))
+            {
+                var message = await UserInfo.ReadRow(dataReader, cancellationToken: CancellationToken.None).ConfigureAwait(false);
+
+                await func(message, sqlConnection).ConfigureAwait(false);
+            }
+        }
+    }
+
+    public static async Task AckAsync(SqlConnection sqlConnection, int id, CancellationToken cancellationToken = default)
+    {
+
+        var sendCommand = string.Format("UPDATE {0} SET State=3 where UserId=@Id ", "HD..Users");
+
+        using (var SqlCommand = new SqlCommand(sendCommand, sqlConnection))
+        {
+            SqlCommand.AddParameter("Id", SqlDbType.Int, id);
+
+            await SqlCommand.ExecuteNonQueryAsync(cancellationToken).ConfigureAwait(false);
+        }
+        Console.WriteLine($"{id} 已被确认");
+    }
+
+
     public static async Task<List<UserInfo>> GetNextAsync(SqlConnection sqlConnection, string TableName,  int batchCount = 10, CancellationToken cancellationToken = default)
     {
         List<UserInfo> store=new();
