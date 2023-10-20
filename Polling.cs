@@ -13,7 +13,8 @@ public static partial class Polling
 }
 
 /*
-   
+var PollingQueue = new PollingQueue(() => (SqlConnection)factory.CreateConnection("HD"));
+
 var Dispatcher = new OutboxDispatcher(() => (SqlConnection)factory.CreateConnection("HD"));
 
 var source = Observable.FromAsync(async () => await PollingQueue.DequeueAsync(CancellationToken.None));
