@@ -1,4 +1,12 @@
+/*
+   var address = AddressInfo.Create("中国洛阳", "15802807012", "7090");
 
+    Consumer consumer = Consumer.Create(1, "fzf003", 10, addressInfo: address);
+
+    Console.WriteLine(consumer);
+
+    Console.WriteLine(consumer.WithConsumerName("hzh008"));
+*/
 public record Consumer(int Id, string Name, int Age, AddressInfo Address)
 {
     public Consumer WithConsumerName(string Name)
