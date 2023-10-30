@@ -1,3 +1,26 @@
+
+
+
+SCZS.YX.BPMCOREServices/Services/QuotePriceService.cs
+SCZS.YX.BPMCOREServices/IServices/IQuotePriceService.cs
+SCZS.YX.BPMCOREModel/Filter/QueryProductLineFilter.cs
+SCZS.YX.BPMCOREModel/DTO/QueryProductResponse.cs
+SCZS.YX.BPMCORE/Controllers/CustomerProductLineController.cs
+SCZS.YX.BPMCORE/Controllers/CustomerController.cs
+SCZS.YX.BPMCOREModel/DTO/QuotePriceItemGxList.cs
+SCZS.YX.BPMCOREServices/Services/QuotePriceService.cs
+SCZS.YX.BPMCOREModel/DTO/QuotePriceItemGxList.cs
+SCZS.YX.BPMCOREModel/DTO/QuotePriceItemGxList.cs
+SCZS.YX.BPMCOREModel/Filter/DragSortFilter.cs
+SCZS.YX.BPMCOREModel/Filter/UpdateSortItemFilter.cs
+SCZS.YX.BPMCOREModel/Filter/QueryProductLineFilter.cs
+SCZS.YX.BPMCORE/Controllers/CustomerProductLineController.cs
+SCZS.YX.BPMCOREModel/DTO/PMPriceGZSort.cs
+SCZS.YX.BPMCOREModel/Filter/UpdateSortItemFilter.cs
+SCZS.YX.BPMCOREModel/Filter/QuotePriceItemGxInsert.cs
+SCZS.YX.BPMCOREModel/Filter/QueryProductLineFilter.cs
+
+
   
   SELECT * FROM (
   SELECT  PM.ID,PM.CusCode FROM (SELECT CusCode FROM JZDATA..CRM_Customer  WHERE CustomerType IN('尚层优选') AND CusStateCode <32) T
