@@ -1,4 +1,12 @@
+  
+  SELECT * FROM (
+  SELECT  PM.ID,PM.CusCode FROM (SELECT CusCode FROM JZDATA..CRM_Customer  WHERE CustomerType IN('尚层优选') AND CusStateCode <32) T
+   LEFT JOIN SCYXDATA..PM_Price_M PM 
+   ON PM.CUSCODE=T.CUSCODE
+   WHERE PM.Status IN(0,1)  
+   ) N
 
+      
 
 DECLARE @MID INT=1312;
 DECLARE @CusCode NVARCHAR(50)='CUS2007260007';
