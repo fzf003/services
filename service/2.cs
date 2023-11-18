@@ -13,12 +13,19 @@
                   new Step { Min = 10000, Max = 30000, discount = 5.3 }
             };
 
-            const int valueToMatch = 120900;
-            OrignAmount = valueToMatch;
+             decimal valueToMatch = 120900;
+                  decimal totalDiscount = 0;
 
-            PrintMatchingSteps(Setps, valueToMatch);
+                 Console.WriteLine($"分拆金额: {valueToMatch}");
+          
 
+            totalDiscount=  CalculateDiscount(Setps, valueToMatch);
 
+ Console.WriteLine($"总折扣金额: {totalDiscount}");
+
+ Console.WriteLine($"总剩余金额: {initialValueToMatch-totalDiscount}");
+
+ Console.WriteLine($"验证:{totalDiscount+(initialValueToMatch - totalDiscount)}");
 
 
 
@@ -31,6 +38,37 @@
 
 
         }
+
+ static decimal CalculateDiscount(List<Step> steps, decimal valueToMatch)
+ {
+     decimal totalDiscount = 0;
+
+     foreach (var step in steps)
+     {
+         if (valueToMatch <= 0)
+         {
+             break;
+         }
+
+         decimal stepValue = Math.Min(valueToMatch, step.Max);
+         Console.WriteLine($"Curr:{valueToMatch}--Max:{step.Max}---{stepValue}");
+         decimal stepDiscount = stepValue * (step.discount / 10);
+         totalDiscount += stepDiscount;
+
+         valueToMatch -= stepValue;
+         Console.WriteLine($"区间：Min: {step.Min}, Max: {step.Max}, 折扣: {stepDiscount} 剩余:{valueToMatch}");
+
+     }
+
+     return totalDiscount;
+ }
+
+ public class Step
+ {
+     public decimal Min { get; set; }
+     public decimal Max { get; set; }
+     public decimal discount { get; set; }
+ };
 
         static void PrintMatchingSteps(List<Step> steps, int valueToMatch, int startIndex = 0)
         {
