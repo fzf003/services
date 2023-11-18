@@ -21,11 +21,30 @@
 
             totalDiscount=  CalculateDiscount(Setps, valueToMatch);
 
- Console.WriteLine($"总折扣金额: {totalDiscount}");
+         Console.WriteLine($"总折扣金额: {totalDiscount}");
+        
+         Console.WriteLine($"总剩余金额: {initialValueToMatch-totalDiscount}");
+        
+         Console.WriteLine($"验证:{totalDiscount+(initialValueToMatch - totalDiscount)}");
 
- Console.WriteLine($"总剩余金额: {initialValueToMatch-totalDiscount}");
 
- Console.WriteLine($"验证:{totalDiscount+(initialValueToMatch - totalDiscount)}");
+
+                  decimal targetValue = 300010;
+
+                  var result= Setps.Where(step => targetValue > step.Min && targetValue <= step.Max);
+                
+                  if(result.Any())
+                  {
+                      Console.WriteLine(result.Count());
+                      foreach(Step step in result)
+                      {
+                          Console.WriteLine($"区间：Min: {step.Min}, Max: {step.Max}");
+                      }
+                  }
+                  else
+                  {
+                      Console.WriteLine("没有匹配到");
+                  }
 
 
 
