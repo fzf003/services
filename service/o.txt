@@ -1,3 +1,4 @@
 你是我的小苹果!!!!!
 
 https://medium.com/dapper-net/handling-multiple-resultsets-4b108a8c5172
+https://medium.com/@MilanJovanovicTech/cqrs-validation-with-mediatr-pipeline-and-fluentvalidation-ff847502dfdd
