@@ -2,3 +2,5 @@
 
 https://medium.com/dapper-net/handling-multiple-resultsets-4b108a8c5172
 https://medium.com/@MilanJovanovicTech/cqrs-validation-with-mediatr-pipeline-and-fluentvalidation-ff847502dfdd
+
+https://medium.com/@MilanJovanovicTech/functional-error-handling-in-net-with-the-result-pattern-1969ca3ae11b
