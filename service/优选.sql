@@ -24,3 +24,13 @@ UPDATE  SCYXDATA..SCM_Order_T  set  ProjectID=ProjectID*-1 where TaskID in(selec
 
 update SCYXDATA..SCM_Order_m set SupplierCode='删除-'+SupplierCode where OrderCode in('STROD202311080007','STROD202311080010','STROD202311080009','STROD202311080008')
 
+
+
+
+
+ select * from JZDATA..SCM_SYS_SupplierMaintenance_T
+where SupplierCode in('ERKS0043') 
+
+update JZDATA..SCM_SYS_SupplierMaintenance_T set ProBrandCode='BL210715'
+where SupplierCode in('ERKS0043')  and ProBrand in('德国海福乐（优选）')
+
