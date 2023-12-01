@@ -118,6 +118,6 @@ SELECT * FROM (  SELECT ss.DetailClass, ss.Taskid,
                             -- ON p2.FoolSpacePartID = gzt2.FoolSpacePartId 
                             WHERE p2.M_ID = @MID ) pp  ON ss.FoolName = pp.FoolName  AND ss.SpaceID = pp.SpaceID AND ss.UseName=pp.UseName   ) T 
                             WHERE T.DETAILNO IN (     
-							SELECT * FROM SCYXDATA.dbo.GetQueryProductLine(@CompanyCode,@RVersion,@Version)
+							SELECT * FROM SCYXDATA.dbo.QueryMatchProductLine(@CompanyCode,@RVersion,@Version)
                             )
 
