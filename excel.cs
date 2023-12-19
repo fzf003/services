@@ -35,3 +35,15 @@
 
      return Ok(new { file.FileName, file.Length });
  }
+
+
+
+   var newdatatable= CreateTable();
+    Console.WriteLine(newdatatable.Rows.Count);
+
+    string json = JsonConvert.SerializeObject(newdatatable);
+    Console.WriteLine(json);
+
+    DataTable dataTable = JsonConvert.DeserializeObject<DataTable>(json);
+
+    Console.WriteLine(dataTable.Rows.Count);
