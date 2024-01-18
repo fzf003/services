@@ -59,3 +59,6 @@ builder.Services.AddHttpClient<GitHubService>(httpClient =>
 })
 .AddHttpMessageHandler<LoggingDelegatingHandler>()
 .AddHttpMessageHandler<RetryDelegatingHandler>();
+
+
+https://medium.com/@MilanJovanovicTech/extending-httpclient-with-delegating-handlers-in-asp-net-core-732dd8326030
