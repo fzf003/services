@@ -219,3 +219,14 @@ static async Task DelayAsync()
                              Console.WriteLine($"{p.Value}--{p.Timestamp}");
                          });
 }
+
+public static class SampleExtensions
+{
+    public static void Dump<T>(this IObservable<T> source, string name)
+    {
+        source.Subscribe(
+            value =>Console.WriteLine($"{name}-->{value}"), 
+            ex => Console.WriteLine($"{name} error-->{ex.Message}"),
+            () => Console.WriteLine($"{name} completed"));
+    }
+}
