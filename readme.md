@@ -1,1 +1,3 @@
 https://blog.stackademic.com/how-to-implement-cqrs-event-sourcing-with-kafka-in-asp-net-core-microservices-architecture-ed7069d661a3
+
+https://blog.stackademic.com/how-to-easily-create-pdf-documents-in-asp-net-core-a9e1dd03677d
