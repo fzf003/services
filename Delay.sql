@@ -50,7 +50,26 @@ SELECT DueAfter FROM HD..Users WITH (READPAST) ORDER BY DueAfter
  ---查找包含视图的存储过程和仕途
 select distinct OBJECT_NAME(Id) from syscomments  where id in (select Id from sysobjects where type in ('V','P','F'))
  and text like '%V_PM_ContranctAmount%'
-	
+
+
+----拉取队列消息
+WITH message AS (
+    SELECT TOP(10) *
+    FROM [HD].[dbo].[Users] WITH (UPDLOCK, READPAST, ROWLOCK)
+    ORDER BY DueAfter)
+DELETE FROM message
+OUTPUT
+    deleted.UserId,
+    CASE WHEN deleted.DueAfter IS NULL
+        THEN '未过期'
+        ELSE CASE WHEN deleted.DueAfter > getdate()
+            THEN '未过期'
+            ELSE '已过期'
+        END
+    END,
+    deleted.UserId,
+    deleted.UserName,
+	deleted.DueAfter;
 
 
 
