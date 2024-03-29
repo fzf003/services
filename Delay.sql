@@ -70,6 +70,11 @@ OUTPUT
     deleted.UserId,
     deleted.UserName,
 	deleted.DueAfter;
+----获取下次的过期时间
+SELECT TOP 1 getdate() as UtcNow, DueAfter as NextDue
+FROM [HD].[dbo].[Users] WITH (READPAST)
+ORDER BY DueAfter
+
 
 
 
