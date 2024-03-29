@@ -43,4 +43,13 @@ public interface IEventBus<T> : IProducer<T>, IConsumer<T> where T : IIntegratio
 
 
 
+public class ProcessHandle
+{
+    [TopicMeta(TopicName = "SendCommand", Route = "api/publish",Run =true)]
+    public void SendCommand(string message)
+    {
+        Console.WriteLine(message);
+    }
+}
+
 
