@@ -184,4 +184,46 @@ public partial class SqlQueue
         }
     }
 
+public static async Task FetchAsync<T>(ChannelWriter<T> channelWriter, Func<SqlConnection> sqlConnectionfunc, int batchsize, CancellationToken cancellationToken = default)
+    {
+        var NextQuerySql = string.Format(GetNextQuery, batchsize, "HD..Users");
+
+        while (!cancellationToken.IsCancellationRequested)
+        {
+            using SqlConnection sqlConnection = sqlConnectionfunc();
+            await sqlConnection.OpenAsync(cancellationToken).ConfigureAwait(false);
+            using (var SqlCommand = new SqlCommand(NextQuerySql, sqlConnection))
+            {
+
+                using var dataReader = await SqlCommand.ExecuteReaderAsync(System.Data.CommandBehavior.Default | CommandBehavior.SequentialAccess, cancellationToken).ConfigureAwait(false);
+
+                if (dataReader.HasRows == false)
+                {
+                    await sqlConnection.CloseAsync().ConfigureAwait(false);
+
+                    await Task.Delay(1000 * 2).ConfigureAwait(false);
+
+                    Console.WriteLine("............................................");
+                    
+                    continue;
+                }
+
+                while (await dataReader.ReadAsync(cancellationToken).ConfigureAwait(false))
+                {
+                    //var message = await UserInfo.ReadRow(dataReader, cancellationToken: cancellationToken).ConfigureAwait(false);
+
+                    var message=  dataReader.GetRowParser<T>()(dataReader);
+
+                    Console.WriteLine($"Send:{message}");
+
+                    await channelWriter.WriteAsync(message).ConfigureAwait(false);
+                }
+
+                await sqlConnection.CloseAsync().ConfigureAwait(false);
+
+            }
+
+        }
+    }
+
 }
