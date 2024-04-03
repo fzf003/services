@@ -13,6 +13,8 @@ https://medium.com/@MilanJovanovicTech/lightweight-in-memory-message-bus-using-n
 
 https://medium.com/@dayanandthombare/background-services-in-net-core-c32f15e28678
 
+https://juldhais.net/paypal-checkout-integration-with-asp-net-core-90cb22cd465d
+
 
 
 
