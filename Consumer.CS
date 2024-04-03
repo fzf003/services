@@ -48,7 +48,7 @@ public abstract class AbstractConsumer<T> : IEventConsumer<T> where T : class
 
     RetryPolicy policy = null;
 
-    const string connectionString = "Data Source=10.22.65.11;Initial Catalog=HD;Integrated Security=False;User ID=sa;Password=sczs_dev2020; Max Pool Size=1000;Connect Timeout=3000";
+    const string connectionString = "Data Source=127.0.0.1;Initial Catalog=HD;Integrated Security=False;User ID=sa;Password=sczs_dev2020; Max Pool Size=1000;Connect Timeout=3000";
 
     public AbstractConsumer()
     {
