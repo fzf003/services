@@ -5,7 +5,9 @@ INNER JOIN  (SELECT OrderCode FROM SCYXDATA..SCM_Order_M  WHERE SettlementAmount
 ON FSD.OrderCode=FPTS.OrderCode
 WHERE  FSD.OrderCode  IN (select OrderCode from SCYXDATA..SCM_Order_M  where SettlementAmount in(-28313.10))
 
-
+  select  state,OrderCode,* from SCYXDATA..SCM_Order_M
+  WHERE TaskID IN( SELECT TaskID FROM SCYXDATA..SCM_Order_T WHERE orderNum<0 and CaiGouJiaTotal>0  )
+  ORDER BY CreateTime DESC 
 
   SELECT orderNum,CaiGouJiaTotal,* FROM SCYXDATA..SCM_Order_T WHERE orderNum<0 and CaiGouJiaTotal>0  
 
