@@ -7,6 +7,28 @@ WHERE  FSD.OrderCode  IN (select OrderCode from SCYXDATA..SCM_Order_M  where Set
 
 
 
+  SELECT orderNum,CaiGouJiaTotal,* FROM SCYXDATA..SCM_Order_T WHERE orderNum<0 and CaiGouJiaTotal>0  
+
+ 
+USE SCYXDATA
+
+
+Declare @OrderCode nvarchar(200)='STROD202404050055' 
+
+update SCYXDATA..SCM_Order_T set CaiGouJiaTotal=CaiGouJiaTotal*-1 where OrderCode in(@OrderCode)
+ AND CaiGouJiaTotal>0 and OrderNum<0
+
+ update SCYXDATA..SCM_Order_M set SettlementAmount=(select SUM(CaiGouJiaTotal) from SCYXDATA..SCM_Order_T where OrderCode in(@OrderCode))
+ where OrderCode in(@OrderCode)
+ 
+
+update    JZDATA..SCM_Order_T2 set DealSettlePriceTotal=DealSettlePriceTotal*-1 where OrderCode in(@OrderCode)  AND DealSettlePriceTotal>0 and Number<0
+
+update   JZDATA..SCM_Order_M    set SettlementAmount=(select SUM(DealSettlePriceTotal) from JZDATA..SCM_Order_T2  where OrderCode in(@OrderCode))   where OrderCode in(@OrderCode)
+
+
+ 
+
 ---结算金额为正
 Declare @OrderCode nvarchar(200)='STROD202211040054' 
 
