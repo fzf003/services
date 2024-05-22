@@ -8,6 +8,51 @@
 
 
 
+ 
+
+ DECLARE @Case_M_SN NVARCHAR(100)='YXP2404290001';
+ DECLARE @SN NVARCHAR(100)='';
+ IF EXISTS(SELECT A.SN FROM Base_Space_Part_Config_T a WITH(NOLOCK) 
+          INNER JOIN  Base_Space_Part_Config_M b WITH(NOLOCK) ON a.SN=b.SN WHERE b.State=1
+          AND b.Case_M_SN in(@Case_M_SN) AND SpaceName in('卫生间'))
+  BEGIN
+  CREATE TABLE #TempIds
+(
+    ID INT PRIMARY KEY
+);
+       SELECT DISTINCT @SN= A.SN
+		FROM Base_Space_Part_Config_T a WITH(NOLOCK) 
+		INNER JOIN  Base_Space_Part_Config_M b WITH(NOLOCK) ON a.SN=b.SN WHERE b.State=1
+		AND b.Case_M_SN in(@Case_M_SN) and SpaceName in('卫生间')
+
+		INSERT INTO #TempIds(ID)
+		 SELECT ID FROM Base_Space_Part_Config_T WHERE SN=@SN  and SpaceName in('卫生间')
+
+	    UPDATE Base_Space_Part_Config_T SET SpaceID=73,SpaceName='主卫生间' where ID IN(
+		  SELECT ID FROM Base_Space_Part_Config_T WHERE SN=@SN  and SpaceName in('卫生间')
+		)
+		select * from Base_Space_Part_Config_T where id in (SELECT ID FROM #TempIds)
+		DROP TABLE #TempIds;
+   END
+
+
+
+
+
+ 
+
+
+
+
+
+
+ 
+
+
+
+
+
+
 		  
 DECLARE @CaseSN NVARCHAR(100)='';
 DECLARE @CompanyName NVARCHAR(100)='';
