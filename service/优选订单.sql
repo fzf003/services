@@ -18,20 +18,20 @@ USE SCYXDATA
 
 
 ----撤销订单
-  Declare @OrderCode nvarchar(200)='STROD202403290061' 
+Declare @OrderCode nvarchar(200)='STROD202403290061' 
 
- update SCYXDATA..SCM_Order_M set SupplierCode='删除-'+SupplierCode,state=-1,CusCode=CusCode+'-1' where OrderCode in(@OrderCode)
+ UPDATE SCYXDATA..SCM_Order_M set SupplierCode='删除-'+SupplierCode,state=-1,CusCode=CusCode+'-1' where OrderCode in(@OrderCode)
 
- update SCYXDATA..SCM_Order_T set ProjectID=ProjectID*-1 where  OrderCode in(@OrderCode)
+ UPDATE SCYXDATA..SCM_Order_T set ProjectID=ProjectID*-1 where  OrderCode in(@OrderCode)
 
  UPDATE BPMDB.dbo.BPMInstTasks SET State='Aborted' WHERE Taskid in (
-select TaskID from SCYXDATA..SCM_Order_M where OrderCode in(@OrderCode)
+ SELECT TaskID FROM SCYXDATA..SCM_Order_M WHERE OrderCode in(@OrderCode)
 )
 
 ---审批完成未结算
-IF EXISTS(SELECT * FROM JZDATA..SCM_Order_M WHERE  OrderCode in('STROD202401110034'))
+IF EXISTS(SELECT * FROM JZDATA..SCM_Order_M WHERE  OrderCode in(@OrderCode))
 BEGIN
-   UPDATE JZDATA..SCM_Order_M SET STATE=-1 WHERE  OrderCode in('STROD202401110034')
+   UPDATE JZDATA..SCM_Order_M SET STATE=-1 WHERE  OrderCode in(@OrderCode)
 END
   
  
