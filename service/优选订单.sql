@@ -36,17 +36,7 @@ END
   
  
 
----结算金额为正
-Declare @OrderCode nvarchar(200)='STROD202211040054' 
-
-update SCYXDATA..SCM_Order_T set CaiGouJiaTotal=CaiGouJiaTotal*-1 where OrderCode in(@OrderCode)
-
- update SCYXDATA..SCM_Order_M set SettlementAmount=(select SUM(CaiGouJiaTotal) from SCYXDATA..SCM_Order_T where OrderCode in(@OrderCode))
- where OrderCode in(@OrderCode)
-
-update    JZDATA..SCM_Order_T2 set DealSettlePriceTotal=DealSettlePriceTotal*-1 where OrderCode in(@OrderCode)
-
-update   JZDATA..SCM_Order_M    set SettlementAmount=(select SUM(DealSettlePriceTotal) from JZDATA..SCM_Order_T2  where OrderCode in(@OrderCode))   where OrderCode in(@OrderCode)
+ 
 
 ------结算金额为正
 Declare @OrderCode nvarchar(200)='STROD202404050055' 
