@@ -1,4 +1,54 @@
 
+
+
+
+declare @Cuscode nvarchar(50)='CUS2307220006';
+ 
+WITH t AS(
+SELECT   ROW_NUMBER() OVER(order by OrderStateCode ) as RowNum, a.*,ISNULL(c.OrderState,'未下单') AS OrderState,ISNULL(c.OrderStateCode,0) AS OrderStateCode,ISNULL(b.TaskID,0) AS TaskID,ISNULL(d.ContractAmt,0) AS ContractAmt,ISNULL(e.DownpaymentDate,CONVERT(DATETIME,'1970-01-01 00:00:00')) AS DownpaymentDate FROM (
+SELECT s.SN,s.ID,s.Supplier,s.SupplierCode,s.PtName,s.Cuscode,s.type,s.PtCode,s.category,s.SalaWay,s.backcount FROM (
+SELECT ROW_NUMBER() OVER(PARTITION BY SupplierCode,PtName,SN,[Type],category ORDER BY PtName) AS nums,* FROM (
+SELECT  a.Taskid,(SELECT  b.SerialNum FROM   BPMDB..BPMInstTasks  b WITH(NOLOCK)  WHERE b.TaskId =a.Taskid) SN ,a.ID, a.Supplier,a.SupplierCode,a.PtName,a.Cuscode,ISNULL(a.[Type],'正常') AS [type],a.PtCode,a.SalaWay,
+(SELECT   c.Type FROM  SCYXDATA..PM_Price_Change_M c WITH(NOLOCK) WHERE c.Taskid=a.Taskid) AS  category, (select count(1) from SCYXDATA..PM_Price_T t2  
+					where Taskid =a.Taskid
+					and t2.Type='减' 
+					and t2.OrderState!='已下单') as backcount FROM  SCYXDATA..PM_Price_T a WITH(NOLOCK)  WHERE Flag IN (5,6) AND a.UseState=1 AND a.Cuscode=@Cuscode
+UNION ALL
+SELECT  a.Taskid,(SELECT  b.SerialNum FROM   BPMDB..BPMInstTasks  b WITH(NOLOCK)  WHERE b.TaskId =a.Taskid) SN ,a.ID, a.Supplier,a.SupplierCode,a.PtName,a.Cuscode,ISNULL(a.[Type],'正常') AS [type],a.PtCode,a.SalaWay,
+'活动产品包变更' AS  category, (SELECT COUNT(1) FROM SCYXDATA..PM_Price_T t2 WITH(NOLOCK)  
+					WHERE Taskid =a.Taskid
+					AND t2.Type='减' 
+					AND t2.OrderState!='已下单') AS backcount FROM  SCYXDATA..PM_Price_T a WITH(NOLOCK)  WHERE Flag IN (8) AND a.UseState=1  AND ABS(ISNULL(a.Num,0))>0 AND a.Cuscode=@Cuscode 
+UNION ALL
+SELECT a.Taskid,(SELECT   b.ContractNo FROM  SCYXDATA..CRM_ConstructionContract_M b WITH(NOLOCK)  WHERE b.CusCode=a.Cuscode AND b.State=1 ) SN ,a.ID, a.Supplier,a.SupplierCode,a.PtName,a.Cuscode,ISNULL(a.[Type],'正常') AS [type],a.PtCode,a.SalaWay,
+'优选整装' AS category, 0 as backcount FROM  SCYXDATA..PM_Price_T a WITH(NOLOCK)  WHERE Flag IN (1,2,3,4) AND a.UseState=1 AND a.Cuscode=@Cuscode
+UNION ALL
+SELECT a.Taskid,(SELECT   b.ContractNo FROM  SCYXDATA..CRM_ConstructionContract_M b WITH(NOLOCK)  WHERE b.CusCode=a.Cuscode AND b.State=1 ) SN ,a.ID, a.Supplier,a.SupplierCode,a.PtName,a.Cuscode,ISNULL(a.[Type],'正常') AS [type],a.PtCode,a.SalaWay,
+'活动产品包' AS category, 0 as backcount FROM  SCYXDATA..PM_Price_T a WITH(NOLOCK)  WHERE Flag IN (7) AND a.UseState=1  AND ABS(ISNULL(a.Num,0))>0 AND a.Cuscode=@Cuscode
+
+
+) f ) s WHERE s.nums=1 ) a 
+LEFT JOIN dbo.SCM_Order_T b WITH(NOLOCK) ON a.ID = b.ProjectID 
+LEFT join dbo.SCM_Order_M c WITH(NOLOCK) on b.OrderCode = c.OrderCode 
+LEFT JOIN dbo.CRM_CollectionRelationContract d WITH(NOLOCK) ON a.SN=d.ContractCode 
+LEFT JOIN JZDATA..CRM_Customer e WITH(NOLOCK) ON a.Cuscode=e.CusCode 
+WHERE 1 = 1  ) 
+
+SELECT
+    *
+   -- ROW_NUMBER ( ) OVER ( ORDER BY RowNum   ) AS RowId 
+FROM
+    t 
+	where  SN in('DZCN202309280011') and SupplierCode='NKGS0456'
+
+
+
+   
+
+
+
+
+
 select * from SCYXDATA..PM_Price_Change_M where taskid in(6739103)
 
   select * from SCYXDATA..PM_Price_T WHERE Taskid IN(6739103)
