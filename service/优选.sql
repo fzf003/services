@@ -1,4 +1,33 @@
 
+/****
+查询活动信息
+  
+select IsActiveValid,ActiveId,Status,* from SCYXDATA..CRM_PackageContract  where TaskID in(7150185) 
+
+select * from SCYXDATA..CRM_CancelContract where cusCode in('CUS2403050021')
+
+select * from SCYXDATA..CRM_ConstructionContract_M  where CusCode='CUS2403050021'
+
+select * from SCYXDATA..Base_ActiveConfig_M where taskid in(7121303)
+
+select * from SCYXDATA..PM_Price_M where id in (16629)
+
+
+****/
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
