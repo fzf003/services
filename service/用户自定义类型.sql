@@ -32,3 +32,24 @@ VALUES ('ProductName1', 'ProductDescription1', 100.00, 5),
 
 	   EXEC Proc_CreateProducts @newProducts=@newProductsTable
 
+
+
+
+DECLARE @newProductsTable AS dbo.NewProductType;  
+	   
+-- 插入一些示例数据到表值变量中
+INSERT INTO @newProductsTable
+VALUES ('ProductName1', 'ProductDescription11', GETDATE(), 5),
+       ('ProductName22', 'ProductDescription22', GETDATE(), 10);
+
+
+MERGE [HD].[dbo].[Users] AS c
+USING @newProductsTable AS n
+ON (c.UserName = n.UserName)
+WHEN MATCHED THEN
+    UPDATE SET c.Sex = n.Sex, c.DueAfter = n.DueAfter,c.State=n.State
+WHEN NOT MATCHED BY TARGET THEN
+    INSERT (UserName,Sex,DueAfter,State)
+    VALUES (n.UserName, n.Sex, n.DueAfter,n.State)
+WHEN NOT MATCHED BY SOURCE THEN
+    DELETE;
