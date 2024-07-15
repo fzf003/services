@@ -20,3 +20,5 @@ https://juldhais.net/paypal-checkout-integration-with-asp-net-core-90cb22cd465d
 
 # GC
 https://medium.com/@dayanandthombare/memory-management-in-net-core-with-practical-c-examples-cc969c3db6b0
+
+https://microsoft.github.io/rust-for-dotnet-devs/latest/threading/producer-consumer.html
