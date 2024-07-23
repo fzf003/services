@@ -56,7 +56,9 @@ and SalaWay in('标配') AND   ISNULL(CaiGouJiaTotal,0)=0
 
   
  
-Declare @OrderCode nvarchar(200)='STROD202406130077' 
+
+ 
+Declare @OrderCode nvarchar(200)='STROD202306230073' 
 
 update SCYXDATA..SCM_Order_T set CaiGouJiaTotal=JSPrcieTotal where OrderCode in(@OrderCode) AND  SalaWay IN('标配') AND ISNULL(CaiGouJiaTotal,0)=0 
 
@@ -65,6 +67,19 @@ update SCYXDATA..SCM_Order_M set SettlementAmount=(select SUM(CaiGouJiaTotal) fr
 Update  SCYXDATA..PM_Price_T SET CaiGouJiaTotal=JSPrcieTotal,Active_CaiGoujiaTotal=JSPrcieTotal WHERE ID IN(
 SELECT ProjectID FROM SCYXDATA..SCM_Order_T WHERE orderCode in(@OrderCode))
 and SalaWay in('标配') AND ISNULL(CaiGouJiaTotal,0)=0
+
+update    JZDATA..SCM_Order_T2 set DealSettlePriceTotal=JSPrcieTotal where OrderCode in(@OrderCode)  
+
+update   JZDATA..SCM_Order_M    set SettlementAmount=(select SUM(DealSettlePriceTotal) from JZDATA..SCM_Order_T2  where OrderCode in(@OrderCode))   where OrderCode in(@OrderCode)
+
+
+
+
+
+
+
+
+  
 
 --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
