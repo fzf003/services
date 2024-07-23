@@ -1,4 +1,7 @@
 
+
+
+
 UPDATE FSD SET FSD.SettlementAmount=(SELECT SUM(CaiGouJiaTotal) FROM SCYXDATA..SCM_Order_T WHERE OrderCode in(FPTS.OrderCode))
 FROM SCYXDATA..SCM_Order_M As FSD
 INNER JOIN  (SELECT OrderCode FROM SCYXDATA..SCM_Order_M  WHERE SettlementAmount in(-28313.10)) AS FPTS
@@ -15,6 +18,55 @@ WHERE  FSD.OrderCode  IN (select OrderCode from SCYXDATA..SCM_Order_M  where Set
 USE SCYXDATA
 
 
+  -----没有结算金额----------------------------------------------------------------------------------------------------------------------------------------
+
+  
+
+SELECT ProjectCode,SalaWay,OrderNum,CaiGouJia,CaiGouJiaTotal,TotalPrice,JSPrcieTotal,* FROM SCYXDATA..SCM_Order_T WHERE orderCode in('STROD202406130077')
+
+AND SalaWay IN('标配') AND ISNULL(CaiGouJiaTotal,0)=0 
+
+
+
+
+SELECT TaskId,Num,ProCode,CaiGouJia,CaiGouJiaTotal,Active_CaiGoujiaTotal,JSPrcieTotal,SalaWay,ISConversion,* FROM SCYXDATA..PM_Price_T WHERE ID IN(
+SELECT ProjectID FROM SCYXDATA..SCM_Order_T WHERE orderCode in('STROD202406130079'))
+and SalaWay in('标配') AND   ISNULL(CaiGouJiaTotal,0)=0
+
+Update  SCYXDATA..PM_Price_T SET CaiGouJiaTotal=JSPrcieTotal,Active_CaiGoujiaTotal=JSPrcieTotal WHERE ID IN(
+SELECT ProjectID FROM SCYXDATA..SCM_Order_T WHERE orderCode in('STROD202406130080'))
+and SalaWay in('标配') AND   ISNULL(CaiGouJiaTotal,0)=0
+
+
+SELECT TaskId,ProCode,CaiGouJia,CaiGouJiaTotal,Active_CaiGoujiaTotal,JSPrcieTotal,SalaWay,ISConversion,* FROM SCYXDATA..PM_Price_T WHERE M_ID IN(12988)
+ AND Taskid>0 and SalaWay in('标配') AND  (ISNULL(CaiGouJiaTotal,0)=0 or ISNULL(Active_CaiGoujiaTotal,0)=0)
+
+   
+
+Update  SCYXDATA..PM_Price_T SET CaiGouJiaTotal=JSPrcieTotal,Active_CaiGoujiaTotal=JSPrcieTotal WHERE ID IN(
+SELECT ProjectID FROM SCYXDATA..SCM_Order_T WHERE orderCode in('STROD202406130079'))
+and SalaWay in('标配') AND   ISNULL(CaiGouJiaTotal,0)=0
+
+
+
+ select ProjectCode,SalaWay,OrderNum,CaiGouJia,CaiGouJiaTotal,TotalPrice,JSPrcieTotal,* from SCYXDATA..SCM_Order_T where ProjectID in(
+ SELECT Id  FROM SCYXDATA..PM_Price_T WHERE M_ID IN(12988)
+ AND Taskid>0 and SalaWay in('标配') AND  (ISNULL(CaiGouJiaTotal,0)=0 or ISNULL(Active_CaiGoujiaTotal,0)=0))
+
+
+  
+ 
+Declare @OrderCode nvarchar(200)='STROD202406130077' 
+
+update SCYXDATA..SCM_Order_T set CaiGouJiaTotal=JSPrcieTotal where OrderCode in(@OrderCode) AND  SalaWay IN('标配') AND ISNULL(CaiGouJiaTotal,0)=0 
+
+update SCYXDATA..SCM_Order_M set SettlementAmount=(select SUM(CaiGouJiaTotal) from SCYXDATA..SCM_Order_T where OrderCode in(@OrderCode)) where OrderCode in(@OrderCode)
+ 
+Update  SCYXDATA..PM_Price_T SET CaiGouJiaTotal=JSPrcieTotal,Active_CaiGoujiaTotal=JSPrcieTotal WHERE ID IN(
+SELECT ProjectID FROM SCYXDATA..SCM_Order_T WHERE orderCode in(@OrderCode))
+and SalaWay in('标配') AND ISNULL(CaiGouJiaTotal,0)=0
+
+--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 
 
 ----撤销订单
