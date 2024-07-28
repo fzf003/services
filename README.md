@@ -15,6 +15,8 @@ https://medium.com/@dayanandthombare/background-services-in-net-core-c32f15e2867
 
 https://juldhais.net/paypal-checkout-integration-with-asp-net-core-90cb22cd465d
 
+https://denizirgin.com/c-expression-ve-methodinfo-propertyinfo-s%C4%B1n%C4%B1flar%C4%B1ndan-delegate-yaratmak-87053a6fcf37
+
 
 
 
