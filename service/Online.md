@@ -38,6 +38,8 @@ DRTPMCore：
 SCZS.DRT_PMCore.Services/Quota/QuotaService.cs
 
 
+SCZS.DRT_PMCore.Api
+
 
 1. 超退数量:就是退货超出下单的数量。同一部位相同物料下单数量-退货数量<0 就是超退，具体超几个看此处数据，0表示没有超，只有历史数据有超退的。
 2. 可退补数量:就是退货剩余数量。同一部位相同物料下单数量-退货数量=可退补数量 。
