@@ -1,5 +1,5 @@
 
-
+---https://bpm.shangceng.com.cn/bpm/YZSoft/Forms/Post.aspx?pn=定额分类
 select * from  SCZSPMDATA..PM_Process_QuotaCategory  where ID IN(297)
 
 select * from PM_Base_QuotaCategory where  ID IN(297,323)
