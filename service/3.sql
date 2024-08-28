@@ -33,6 +33,9 @@ select * from BPMHRM..V_GetCompany where code in(1445)
 
 SELECT * FROM PM_Base_QuotaSubCategory WHERE ParentID=323
 
+ SELECT CompanyCode,CompanyName ,* FROM PM_Base_QuotaCategory  where CategoryName in('补充')
+	 and id in(SELECT ParentID FROM PM_Base_QuotaSubCategory where SubQuotaName in('补充'))
+
  DECLARE @TaskID INT=5406362;
  DECLARE @ID INT=0;
 UPDATE PM_Base_QuotaCategory SET EnableStatus=1 WHERE TaskID=@TaskID;
