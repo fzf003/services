@@ -8,3 +8,8 @@
 	 delete SCYXDATA..CRM_ConstructionContract_T_CollectionPeriod_M WHERE TaskID=7646617
 
 http://10.32.62.11:30317/yx/v1/Contract/SyncContractPeriodSetting?ContractTaskId=7646617&CusCode=CUS2406180032
+
+SCXForm.getValue('Setting')
+
+SCXForm.getValue('PeriodRatioJson')
+
