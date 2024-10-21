@@ -1,3 +1,4 @@
+
 var filePath = "户型配置模板.xlsx";
 
 var products = new ExcelMapper(filePath)
@@ -15,7 +16,12 @@ foreach (var item in list)
     Console.WriteLine(item);
 }
 
-var outputmapper=new ExcelMapper();
+var outputmapper=new ExcelMapper()
+{
+    HeaderRow = true,//是否有表头
+    HeaderRowNumber = 0,//表头行号
+    MinRowNumber = 1//数据行最小行号
+};
 
 outputmapper.Saving += (s, e) =>
 {
@@ -47,4 +53,4 @@ outputmapper.Saving += (s, e) =>
 
 };
 
-await outputmapper.SaveAsync("products1.xlsx", list, "Products");
+await outputmapper.SaveAsync("products2.xlsx", list, "Products");
