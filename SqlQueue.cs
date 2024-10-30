@@ -114,7 +114,7 @@ SELECT isnull(cast(max([RowVersion]) - min([RowVersion]) + 1 AS int), 0) Id FROM
            @"
      DECLARE @Ids TABLE (Id int)
                 
-        UPDATE TOP({0}) {1} SET
+        UPDATE TOP({0}) {1}  WITH (UPDLOCK, READPAST, ROWLOCK) SET
              DueAfter = getdate()
         OUTPUT Inserted.UserId INTO @Ids
         SELECT 
