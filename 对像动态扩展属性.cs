@@ -56,13 +56,13 @@ public class Completed
 
 public static class PersonExtensions
 {
-    private static readonly Dictionary<object, Dictionary<string, object>> _additionalProperties = new();
+    private static readonly ConcurrentDictionary<object, ConcurrentDictionary<string, object>> _additionalProperties = new();
 
     public static T AddProperty<T>(this T obj, string propertyName, object value)
     {
         if (!_additionalProperties.ContainsKey(obj))
         {
-            _additionalProperties[obj] = new Dictionary<string, object>();
+            _additionalProperties[obj] = new ConcurrentDictionary<string, object>();
         }
         _additionalProperties[obj][propertyName] = value;
         return obj;
