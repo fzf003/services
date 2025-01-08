@@ -1,3 +1,40 @@
+
+let INum = 5.213;
+let LongSize = 1200; // 瓷砖的长度（毫米）
+let WidthSize = 600; // 瓷砖的宽度（毫米）
+let caiGouJia = 80.00; // 采购价格（单位：元）
+
+// 计算每片瓷砖的面积（平方米）
+let tileArea = (LongSize / 1000) * (WidthSize / 1000); 
+console.log(`每片瓷砖的面积: ${tileArea.toFixed(4)} 平方米`);
+
+// 转换采购数量（单位：片）
+let convertcaigounum = (INum * 1000000.00) / (LongSize * WidthSize); 
+console.log(`转换采购数量（未四舍五入）: ${convertcaigounum}`);
+
+convertcaigounum = convertcaigounum.toFixed(2);
+console.log(`转换采购数量（四舍五入）: ${convertcaigounum}`);
+
+// 实际采购数量（单位：片）
+let shijiNum = INum < 0 ? Math.ceil(convertcaigounum) - 1 : Math.ceil(convertcaigounum);
+console.log(`实际采购数量: ${shijiNum}`);
+
+// 实际采购金额（结算金额）
+let casetotal = (caiGouJia * LongSize * WidthSize / 1000000.00) * shijiNum;
+console.log(`实际采购金额（结算金额）: ${casetotal.toFixed(2)} 元`);
+
+// 转换后的采购价格
+let convertPrice = (casetotal / shijiNum).toFixed(2);
+console.log(`转换后的采购价格: ${convertPrice} 元`);
+
+// 剩余数量（单位：片）
+let shengyunum = (shijiNum - convertcaigounum).toFixed(2);
+console.log(`剩余数量: ${shengyunum} 片`);
+
+// 转化后金额补充
+let BuchongshijiCaigou = (convertPrice * shengyunum).toFixed(2);
+console.log(`转化后金额补充: ${BuchongshijiCaigou} 元`);
+===============================================================================================================================================================================
 let INum =-5
  
 
