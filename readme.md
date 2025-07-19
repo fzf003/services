@@ -4,3 +4,9 @@ https://blog.stackademic.com/how-to-easily-create-pdf-documents-in-asp-net-core-
 
 
 https://medium.com/codenx/event-sourcing-pattern-in-net-09154843fb5d
+
+
+领域驱动
+
+
+https://medium.com/@michaelmaurice410/master-the-art-of-domain-driven-design-with-clean-architecture-in-net-9-03a081578709
