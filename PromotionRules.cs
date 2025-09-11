@@ -1,7 +1,7 @@
 using System;
 using System.Collections.Generic;
 
-// -------------------- 示例数据结构 --------------------
+// -------------------- 数据结构 --------------------
 public class PromotionRules
 {
     public string ConditionType { get; set; }
@@ -77,8 +77,10 @@ public class DefaultConditionEvaluator : IConditionEvaluator
                 if (!decimal.TryParse(item.ConditionValue2, out var ratio)) return false;
                 targetValue = actualAmount * ratio;
             }
-            else if (item.ConditionKey2.EndsWith("%"))
+            else if (item.ConditionKey2.Equals("指定比例", StringComparison.OrdinalIgnoreCase))
             {
+                // 支持百分比字符串，比如 "50%"
+                if (!item.ConditionValue2.EndsWith("%")) return false;
                 if (!decimal.TryParse(item.ConditionValue2.TrimEnd('%'), out var percent)) return false;
                 targetValue = actualAmount * (percent / 100m);
             }
@@ -156,9 +158,9 @@ public static class PromotionRulesEvaluator
 }
 
 // -------------------- 测试示例 --------------------
-public class PromotionRulesManager
+public class Program
 {
-    public static void CreateActive()
+    public static void Main()
     {
         var context = new PromotionContext
         {
@@ -211,7 +213,7 @@ public class PromotionRulesManager
                     new PromotionRulesItem
                     {
                         ConditionKey1 = "收款条件",
-                        ConditionKey2 = "50%",
+                        ConditionKey2 = "指定比例",
                         RelationalOperator = ">=",
                         ConditionValue1 = "设计费",
                         ConditionValue2 = "50%",
